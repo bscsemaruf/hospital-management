@@ -6,20 +6,19 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
-
 model User {
   id String @id @default(uuid())
   email String @unique
   password String
-  needPasswordChange Boolean
+  needPasswordChange Boolean @default(true)
   role UserRole
-  status UserStatus
+  status UserStatus @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   admin Admin?
@@ -28,9 +27,11 @@ model User {
 
 model Admin {
   id String @id @default(uuid())
+  name String 
   email String @unique
   profilePhoto String?
   contactNumber String
+  isDeleted Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -47,6 +48,6 @@ enum UserRole {
 }
 
 enum UserStatus {
-  ACTIVE
-  BLOCKED
+    ACTIVE
+    BLOCKED
 }
