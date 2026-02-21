@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
 
-app.use("/api/v1", userRoutes);
-app.use("/api/v1/admins", adminRoutes);
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
 export default app;
