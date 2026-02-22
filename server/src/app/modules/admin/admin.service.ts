@@ -1,25 +1,36 @@
+import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../../lib/prisma";
 
 const getAllAdmins = async (params?: any) => {
+  const { searchTerm, ...restData } = params;
+  const filterData: Prisma.AdminWhereInput[] = [];
+
+  const adminSearchableFields = ["name", "email"];
+  if (params.searchTerm) {
+    filterData.push({
+      OR: adminSearchableFields.map((field) => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+  console.log(Object.keys(restData));
+  console.log(restData);
+  if (Object.keys(restData).length > 0) {
+    filterData.push({
+      AND: Object.keys(restData).map((field) => ({
+        [field]: {
+          equals: restData[field],
+        },
+      })),
+    });
+  }
+
+  const whereConditions: Prisma.AdminWhereInput = { AND: filterData };
   const result = await prisma.admin.findMany({
-    where: params.searchTerm
-      ? {
-          OR: [
-            {
-              name: {
-                contains: params.searchTerm,
-                mode: "insensitive",
-              },
-            },
-            {
-              email: {
-                contains: params.searchTerm,
-                mode: "insensitive",
-              },
-            },
-          ],
-        }
-      : {},
+    where: whereConditions,
   });
   return result;
 };
