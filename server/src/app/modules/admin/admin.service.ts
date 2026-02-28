@@ -16,8 +16,7 @@ const getAllAdmins = async (params?: any) => {
       })),
     });
   }
-  console.log(Object.keys(restData));
-  console.log(restData);
+
   if (Object.keys(restData).length > 0) {
     filterData.push({
       AND: Object.keys(restData).map((field) => ({

@@ -1,9 +1,19 @@
 import { Request, Response } from "express";
 import { adminService } from "./admin.service";
+import { pick } from "../../../shared/pick";
 
 const getAllAdmins = async (req: Request, res: Response) => {
   try {
-    const result = await adminService.getAllAdmins(req.query);
+    const obj = req.query;
+    const realFilterData = [
+      "searchTerm",
+      "name",
+      "email",
+      "contactNumber",
+    ] as const;
+
+    const data = pick(obj, realFilterData);
+    const result = await adminService.getAllAdmins(data);
     res.status(200).json({
       success: true,
       message: "Admins retrived successfully",
