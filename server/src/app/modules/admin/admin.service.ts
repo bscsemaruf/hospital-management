@@ -5,7 +5,7 @@ import { adminSearchableFields } from "./admin.constant";
 
 const getAllAdmins = async (params: any, options: any) => {
   const { searchTerm, ...restData } = params;
-  const { limit, skip, sortBy, sortOrder } = calculatePagination(options);
+  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
 
   const filterData: Prisma.AdminWhereInput[] = [];
 
@@ -42,7 +42,18 @@ const getAllAdmins = async (params: any, options: any) => {
           }
         : { createdAt: "desc" },
   });
-  return result;
+
+  const total = await prisma.admin.count({
+    where: whereConditions,
+  });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 export const adminService = {
