@@ -29,6 +29,9 @@ const getAllAdmins = async (params: any, options: any) => {
       })),
     });
   }
+  filterData.push({
+    isDeleted: false,
+  });
 
   const whereConditions: Prisma.AdminWhereInput = { AND: filterData };
   const result = await prisma.admin.findMany({
@@ -56,17 +59,20 @@ const getAllAdmins = async (params: any, options: any) => {
   };
 };
 
-const getAdminById = async (id: string) => {
+const getAdminById = async (id: string): Promise<Admin | null> => {
   const result = await prisma.admin.findUniqueOrThrow({
-    where: { id },
+    where: { id, isDeleted: false },
   });
 
   return result;
 };
 
-const updateAdminById = async (id: string, data: Partial<Admin>) => {
+const updateAdminById = async (
+  id: string,
+  data: Prisma.AdminUpdateInput,
+): Promise<Admin | null> => {
   await prisma.admin.findUniqueOrThrow({
-    where: { id },
+    where: { id, isDeleted: false },
   });
   const result = await prisma.$transaction(async (tx) => {
     const findData = await tx.admin.update({
@@ -78,7 +84,7 @@ const updateAdminById = async (id: string, data: Partial<Admin>) => {
   return result;
 };
 
-const deleteAdminById = async (id: string) => {
+const deleteAdminById = async (id: string): Promise<Admin | null> => {
   await prisma.admin.findUniqueOrThrow({
     where: { id },
   });
@@ -91,6 +97,28 @@ const deleteAdminById = async (id: string) => {
         email: deleteFromAdmin.email,
       },
     });
+    return deleteFromAdmin;
+  });
+  return result;
+};
+
+const softDeleteAdminById = async (id: string): Promise<Admin | null> => {
+  const result = await prisma.$transaction(async (tx) => {
+    const updateFromAdmin = await tx.admin.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+      },
+    });
+    await tx.user.update({
+      where: {
+        email: updateFromAdmin.email,
+      },
+      data: {
+        status: "BLOCKED",
+      },
+    });
+    return updateFromAdmin;
   });
   return result;
 };
@@ -100,4 +128,5 @@ export const adminService = {
   getAdminById,
   updateAdminById,
   deleteAdminById,
+  softDeleteAdminById,
 };
