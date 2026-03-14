@@ -5,14 +5,18 @@ import AppError from "../../error/AppError";
 import { StatusCodes } from "http-status-codes";
 
 const auth = (...roles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return async (
+    req: Request & { user?: string },
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const token = req.headers.authorization;
       const decoded = jwtHelper.verifyToken(
         token as string,
         config.jwt.access_secret,
       );
-      console.log(decoded.email, decoded.role);
+      req.user = decoded.email;
       if (roles.length && !roles.includes(decoded.role)) {
         throw new AppError(StatusCodes.UNAUTHORIZED, "You are unauthorized");
       }
