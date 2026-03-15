@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import config from "../../../config";
 
-const senderEmail = async (email: string) => {
+const senderEmail = async (email: string, html: string) => {
   // Create a transporter using Ethereal test credentials.
   // For production, replace with your actual SMTP server details.
   const transporter = nodemailer.createTransport({
@@ -21,7 +21,7 @@ const senderEmail = async (email: string) => {
     to: email,
     subject: "Hello ✔",
     text: "Hello world?", // Plain-text version of the message
-    html: "<b>Ifter banao jao!</b>", // HTML version of the message
+    html, // HTML version of the message
   });
 
   console.log("Message sent:", info.messageId);
